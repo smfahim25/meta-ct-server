@@ -1,33 +1,36 @@
 // models/user.model.js
-
 const db = require('../config').db;
 
-const User = {
-  findAll: (callback) => {
-    const query = 'SELECT * FROM users';
-    db.query(query, (err, results) => {
-      if (err) {
-        console.error('Error fetching users:', err);
-        callback(err, null);
-      } else {
-        callback(null, results);
-      }
-    });
-  },
+class User {
+  // Get all users
+  static async getAll() {
+    const [rows] = await db.query('SELECT * FROM meta_ct_user');
+    return rows;
+  }
 
-  create: (newUser, callback) => {
-    const query = 'INSERT INTO users SET ?';
-    db.query(query, newUser, (err, results) => {
-      if (err) {
-        console.error('Error creating user:', err);
-        callback(err, null);
-      } else {
-        callback(null, results);
-      }
-    });
-  },
+  // Get a user by ID
+  static async getById(id) {
+    const [rows] = await db.query('SELECT * FROM meta_ct_user WHERE id = ?', [id]);
+    return rows[0];
+  }
 
-  // Add other model methods as needed
-};
+  // Create a new user
+  static async create(userData) {
+    const [result] = await db.query('INSERT INTO meta_ct_user SET ?', userData);
+    return result.insertId;
+  }
+
+  // Update a user by ID
+  static async update(id, userData) {
+    const [result] = await db.query('UPDATE meta_ct_user SET ? WHERE id = ?', [userData, id]);
+    return result.affectedRows;
+  }
+
+  // Delete a user by ID
+  static async delete(id) {
+    const [result] = await db.query('DELETE FROM meta_ct_user WHERE id = ?', [id]);
+    return result.affectedRows;
+  }
+}
 
 module.exports = User;

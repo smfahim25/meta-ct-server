@@ -1,16 +1,13 @@
 // routes/user.routes.js
-
 const express = require('express');
 const userController = require('../controllers/user.controller');
 
 const router = express.Router();
 
-// GET /api/users
 router.get('/', userController.getAllUsers);
-
-// POST /api/users
+router.get('/:id', userController.getUserById);
 router.post('/', userController.createUser);
-
-// Add other routes as needed
+router.put('/:id', userController.updateUser);
+router.delete('/:id', userController.deleteUser);
 
 module.exports = router;
