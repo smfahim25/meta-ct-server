@@ -3,6 +3,8 @@ const { db } = require('./config');
 const userRoutes = require('./routes/user.routes');
 const depositRoutes = require('./routes/deposit.routes');
 const withdrawRoutes = require('./routes/withdraw.routes');
+const userBalanceMetaRoutes = require('./routes/userBalanceMeta.routes');
+const tradeOrderRoutes = require('./routes/tradeOrder.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,6 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/deposits', depositRoutes);
 app.use('/api/v1/withdraws', withdrawRoutes);
+app.use('/api/v1/userbalance', userBalanceMetaRoutes);
+app.use('/api/v1/tradeorder', tradeOrderRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
