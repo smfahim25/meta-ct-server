@@ -7,6 +7,8 @@ const withdrawRoutes = require('./routes/withdraw.routes');
 const userBalanceMetaRoutes = require('./routes/userBalanceMeta.routes');
 const tradeOrderRoutes = require('./routes/tradeOrder.routes');
 const referralRoutes = require('./routes/referralHistory.routes');
+const marketRoutes = require('./routes/marketData.routes');
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +25,7 @@ app.use('/api/v1/withdraws', withdrawRoutes);
 app.use('/api/v1/userbalance', userBalanceMetaRoutes);
 app.use('/api/v1/tradeorder', tradeOrderRoutes);
 app.use('/api/v1/referral', referralRoutes);
+app.use('/api/v1/market', marketRoutes);
 
 
 // Error handling middleware
