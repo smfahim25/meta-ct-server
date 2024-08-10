@@ -14,6 +14,24 @@ class User {
     return rows[0];
   }
 
+  // Get a user by email or mobile
+  static async getByEmailOrMobile(emailOrMobile) {
+    const [rows] = await db.query(
+      'SELECT * FROM meta_ct_user WHERE email = ? OR mobile = ?',
+      [emailOrMobile, emailOrMobile]
+    );
+    return rows[0];
+  }
+
+  // Get a user by email or mobile for login (including password)
+  static async getByEmailOrMobileWithPassword(emailOrMobile) {
+    const [rows] = await db.query(
+      'SELECT * FROM meta_ct_user WHERE (email = ? OR mobile = ?)',
+      [emailOrMobile, emailOrMobile]
+    );
+    return rows[0];
+  }
+
   // Create a new user
   static async create(userData) {
     const [result] = await db.query('INSERT INTO meta_ct_user SET ?', userData);

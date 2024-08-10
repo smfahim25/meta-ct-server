@@ -1,5 +1,4 @@
-// controllers/user.controller.js
-
+const bcrypt = require('bcrypt');
 const User = require('../models/user.model');
 
 // Get all users
@@ -25,11 +24,49 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// Create a new user
-exports.createUser = async (req, res) => {
+// Sign up a new user
+exports.signUpUser = async (req, res) => {
   try {
-    const newUserId = await User.create(req.body);
-    res.status(201).json({ id: newUserId, ...req.body });
+    const { email, mobile, password, ...rest } = req.body;
+
+    // Check if the email or mobile already exists
+    const existingUser = await User.getByEmailOrMobile(email || mobile);
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists with this email or mobile' });
+    }
+
+    // Hash the password if provided
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+
+    // Create the new user
+    const newUserId = await User.create({ email, mobile, password: hashedPassword, ...rest });
+    res.status(201).json({ id: newUserId, ...req.body, password: undefined });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Login user
+exports.loginUser = async (req, res) => {
+  try {
+    const { emailOrMobile, password } = req.body;
+
+    // Get the user by email or mobile
+    const user = await User.getByEmailOrMobileWithPassword(emailOrMobile);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check the password if provided
+    if (password) {
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: 'Incorrect password' });
+      }
+    }
+
+    // Return user data (excluding password)
+    res.json({ ...user, password: undefined });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
