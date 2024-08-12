@@ -24,6 +24,18 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+exports.getUserByWalletId = async (req, res) => {
+  try {
+    const user = await User.getByWalletId(req.params.walletID);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Sign up a new user
 exports.signUpUser = async (req, res) => {
   try {
@@ -41,6 +53,36 @@ exports.signUpUser = async (req, res) => {
     // Create the new user
     const newUserId = await User.create({ email, mobile, password: hashedPassword, ...rest });
     res.status(201).json({ id: newUserId, ...req.body, password: undefined });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.createUserByWallet = async (req, res) => {
+  try {
+    const { user_wallet, ...rest } = req.body;
+
+    // Check if the wallet ID already exists
+    const existingUser = await User.getByWalletId(user_wallet);
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists with this wallet ID' });
+    }
+
+    // Generate a unique 6-digit UUID
+    let uuid;
+    let isUnique = false;
+
+    while (!isUnique) {
+      uuid = Math.floor(100000 + Math.random() * 900000).toString();
+      const userWithUuid = await User.getByUUId(uuid);
+      if (!userWithUuid) {
+        isUnique = true;
+      }
+    }
+
+    // Create the new user
+    const newUserId = await User.create({ uuid, user_wallet, ...rest });
+    res.status(201).json({ id: newUserId, uuid, user_wallet, ...rest });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

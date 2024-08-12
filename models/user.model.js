@@ -14,6 +14,18 @@ class User {
     return rows[0];
   }
 
+   // Get a user by wallet address
+   static async getByWalletId(wallet) {
+    const [rows] = await db.query('SELECT * FROM meta_ct_user WHERE user_wallet = ?', [wallet]);
+    return rows[0];
+  }
+
+    // Get a user by uiid address
+    static async getByUUId(uuid) {
+      const [rows] = await db.query('SELECT * FROM meta_ct_user WHERE uuid = ?', [uuid]);
+      return rows[0];
+    }
+
   // Get a user by email or mobile
   static async getByEmailOrMobile(emailOrMobile) {
     const [rows] = await db.query(

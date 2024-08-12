@@ -4,6 +4,8 @@ const router = express.Router();
 
 router.get('/', userController.getAllUsers);
 router.get('/:id', userController.getUserById);
+router.get('/wallet/:walletID', userController.getUserByWalletId);
+router.post('/create', userController.createUserByWallet);
 // router.post('/', userController.createUser);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
