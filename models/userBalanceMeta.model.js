@@ -74,7 +74,7 @@ async function getOrCreateUserBalance(userId, coinId) {
       const [result] = await db.query(insertQuery, [userId, coinId]);
 
       if (result.affectedRows === 1) {
-        const [newBalance] = await db.promise().query(query, [userId, coinId]);
+        const [newBalance] = await db.query(query, [userId, coinId]);
         return newBalance[0];
       }
     }
