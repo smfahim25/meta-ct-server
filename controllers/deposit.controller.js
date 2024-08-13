@@ -1,6 +1,5 @@
 // controllers/deposit.controller.js
 const Deposit = require('../models/deposit.model');
-
 // Get all deposits
 exports.getAllDeposits = async (req, res) => {
   try {
@@ -26,14 +25,23 @@ exports.getDepositById = async (req, res) => {
 
 // Create a new deposit
 exports.createDeposit = async (req, res) => {
+  const depositData = {
+    user_id: req.body.user_id,
+    wallet_to: req.body.wallet_to,
+    wallet_from: req.body.wallet_from,
+    coin_id: req.body.coin_id,
+    trans_hash: req.body.trans_hash,
+    amount: req.body.amount,
+    documents: req.file ? req.file.path : null,
+  };
+
   try {
-    const newDepositId = await Deposit.create(req.body);
-    res.status(201).json({ id: newDepositId, ...req.body });
+    const newDepositId = await Deposit.create(depositData);
+    res.status(201).json({ id: newDepositId, ...depositData });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 // Update a deposit by ID
 exports.updateDeposit = async (req, res) => {
   try {
