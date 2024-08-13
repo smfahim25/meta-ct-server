@@ -66,3 +66,29 @@ exports.deleteUserBalanceMeta = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Get or Create User Balance by User ID and Coin ID
+exports.getUserBalanceByUserIdAndCoinId = async (req, res) => {
+  const { userId, coinId } = req.params;
+
+  try {
+    const userBalance = await userBalanceMetaModel.getOrCreateUserBalance(userId, coinId);
+
+    if (userBalance) {
+      res.status(200).json({
+        success: true,
+        data: userBalance,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'User balance not found or could not be created',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

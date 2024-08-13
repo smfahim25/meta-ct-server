@@ -7,5 +7,6 @@ router.get('/:id', userBalanceMetaController.getUserBalanceMetaById);
 router.post('/', userBalanceMetaController.createUserBalanceMeta);
 router.put('/:id', userBalanceMetaController.updateUserBalanceMeta);
 router.delete('/:id', userBalanceMetaController.deleteUserBalanceMeta);
+router.get('/:userId/balance/:coinId', userBalanceMetaController.getUserBalanceByUserIdAndCoinId);
 
 module.exports = router;
