@@ -67,3 +67,21 @@ exports.deleteTradeOrder = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Get Trade Orders by User ID
+// Get Trade Orders by User ID
+exports.getTradeOrdersByUserId = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const tradeOrders = await tradeOrderModel.getTradeOrderByUserId(userId);
+
+    if (tradeOrders.length > 0) {
+      res.status(200).json(tradeOrders);
+    } else {
+      res.status(404).json({ message: 'No trade orders found for this user' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

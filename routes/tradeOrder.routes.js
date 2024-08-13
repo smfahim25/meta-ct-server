@@ -8,5 +8,5 @@ router.get('/:id', tradeOrderController.getTradeOrderById);
 router.post('/', tradeOrderController.createTradeOrder);
 router.put('/:id', tradeOrderController.updateTradeOrder);
 router.delete('/:id', tradeOrderController.deleteTradeOrder);
-
+router.get('/user/:userId', tradeOrderController.getTradeOrdersByUserId);
 module.exports = router;
