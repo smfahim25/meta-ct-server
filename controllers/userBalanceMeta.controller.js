@@ -92,3 +92,30 @@ exports.getUserBalanceByUserIdAndCoinId = async (req, res) => {
     });
   }
 };
+
+// Update User Balance by User ID and Coin ID
+exports.updateUserBalanceByUserIdAndCoinId = async (req, res) => {
+  const { userId, coinId } = req.params;
+  const { coinAmount } = req.body;  // Expecting coinAmount in the request body
+
+  try {
+    const success = await userBalanceMetaModel.updateUserBalanceCoinAmount(userId, coinId, coinAmount);
+
+    if (success) {
+      res.status(200).json({
+        success: true,
+        message: 'User balance coin amount updated successfully',
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'User balance not found',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

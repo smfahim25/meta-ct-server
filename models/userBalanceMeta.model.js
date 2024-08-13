@@ -84,11 +84,31 @@ async function getOrCreateUserBalance(userId, coinId) {
   }
 }
 
+// Update User Balance by User ID and Coin ID
+async function updateUserBalanceCoinAmount(userId, coinId, coinAmount) {
+  try {
+    const query = `
+      UPDATE meta_ct_user_balance_meta
+      SET coin_amount = ?, updated_at = NOW()
+      WHERE user_id = ? AND coin_id = ?
+    `;
+
+    const [result] = await db.query(query, [coinAmount, userId, coinId]);
+
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error('Error updating user balance:', error.message);
+    throw new Error('Failed to update user balance');
+  }
+}
+
+
 module.exports = {
   getAllUserBalanceMetas,
   getUserBalanceMetaById,
   createUserBalanceMeta,
   updateUserBalanceMeta,
   deleteUserBalanceMeta,
-  getOrCreateUserBalance
+  getOrCreateUserBalance,
+  updateUserBalanceCoinAmount
 };
