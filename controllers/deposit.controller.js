@@ -42,6 +42,7 @@ exports.createDeposit = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 // Update a deposit by ID
 exports.updateDeposit = async (req, res) => {
   try {
@@ -65,5 +66,21 @@ exports.deleteDeposit = async (req, res) => {
     res.json({ message: 'Deposit deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+// Get latest deposit by User ID and Coin ID
+exports.getLatestDepositByUserIdAndCoinId = async (req, res) => {
+  const { userId, coinId } = req.params;
+
+  try {
+    const latestDeposit = await Deposit.getLatestDepositByUserIdAndCoinId(userId, coinId);
+    if (latestDeposit) {
+      res.status(200).json(latestDeposit);
+    } else {
+      res.status(404).json({ message: 'No deposit found for the given User ID and Coin ID' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
