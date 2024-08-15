@@ -71,14 +71,21 @@ exports.getMetalDataByCoin = async (req, res) => {
 // Function to convert between any two currencies or cryptocurrencies
 exports.convertCurrency = async (req, res) => {
     try {
-        const { from_currency, to_currency, amount } = req.body; 
-        const apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${from_currency}&vs_currencies=${to_currency}`;
-        const response = await axios.get(apiUrl);
+        const { from_currency, to_currency, amount } = req.body;
 
-        // Dynamically access the conversion rate
-        const conversionRate = response.data[from_currency] ? response.data[from_currency][to_currency] : null;
+        // First, get the price of `from_currency` in USD
+        const fromApiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${from_currency}&vs_currencies=usd`;
+        const fromResponse = await axios.get(fromApiUrl);
+        const fromRateInUSD = fromResponse.data[from_currency] ? fromResponse.data[from_currency].usd : null;
 
-        if (conversionRate) {
+        // Then, get the price of `to_currency` in USD
+        const toApiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${to_currency}&vs_currencies=usd`;
+        const toResponse = await axios.get(toApiUrl);
+        const toRateInUSD = toResponse.data[to_currency] ? toResponse.data[to_currency].usd : null;
+
+        if (fromRateInUSD && toRateInUSD) {
+            // Calculate the conversion rate
+            const conversionRate = fromRateInUSD / toRateInUSD;
             const convertedAmount = amount * conversionRate;
 
             return res.status(200).json({
