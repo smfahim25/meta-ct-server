@@ -67,3 +67,31 @@ exports.getMetalDataByCoin = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// Function to convert between any two currencies or cryptocurrencies
+exports.convertCurrency = async (req, res) => {
+    try {
+        const { from_currency, to_currency, amount } = req.body; 
+        const apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${from_currency}&vs_currencies=${to_currency}`;
+        const response = await axios.get(apiUrl);
+
+        // Dynamically access the conversion rate
+        const conversionRate = response.data[from_currency] ? response.data[from_currency][to_currency] : null;
+
+        if (conversionRate) {
+            const convertedAmount = amount * conversionRate;
+
+            return res.status(200).json({
+                from_currency,
+                amount,
+                to_currency,
+                converted_amount: convertedAmount,
+                rate: conversionRate
+            });
+        } else {
+            return res.status(500).json({ error: `Failed to fetch conversion rate for ${from_currency} to ${to_currency} from CoinGecko.` });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

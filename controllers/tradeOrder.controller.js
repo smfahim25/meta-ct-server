@@ -1,4 +1,5 @@
 // controllers/tradeOrder.controller.js
+const schedule = require('node-schedule');
 const tradeOrderModel = require('../models/tradeOrder.model');
 
 // Get all trade orders
@@ -26,17 +27,61 @@ exports.getTradeOrderById = async (req, res) => {
   }
 };
 
+
+function parseDeliveryTime(deliveryTime) {
+  const timeUnit = deliveryTime.slice(-1).toUpperCase(); // Get the last character (S, M, H, D)
+  const timeValue = parseInt(deliveryTime.slice(0, -1), 10); // Get the numeric part
+
+  let milliseconds;
+
+  switch (timeUnit) {
+    case 'S':
+      milliseconds = timeValue * 1000;
+      break;
+    case 'M':
+      milliseconds = timeValue * 60 * 1000;
+      break;
+    case 'H':
+      milliseconds = timeValue * 60 * 60 * 1000;
+      break;
+    case 'D':
+      milliseconds = timeValue * 24 * 60 * 60 * 1000;
+      break;
+    default:
+      throw new Error('Invalid delivery time format');
+  }
+
+  return milliseconds;
+}
+
+
+
+
 // Create a new trade order
 exports.createTradeOrder = async (req, res) => {
   const tradeOrderData = req.body;
+
   try {
     const newTradeOrderId = await tradeOrderModel.createTradeOrder(tradeOrderData);
+
+    // Parse the delivery time
+    const deliveryTimeInMilliseconds = parseDeliveryTime(tradeOrderData.delivery_time);
+    const updateTime = new Date(Date.now() + deliveryTimeInMilliseconds);
+
+    // Schedule the status update
+    schedule.scheduleJob(updateTime, async () => {
+      try {
+        await tradeOrderModel.updateTradeOrderStatus(newTradeOrderId, 'finished');
+      } catch (error) {
+        console.error(`Failed to update status for trade order ${newTradeOrderId}:`, error.message);
+      }
+    });
+
     res.status(201).json({ id: newTradeOrderId, ...tradeOrderData });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 // Update a trade order by ID
 exports.updateTradeOrder = async (req, res) => {
   const { id } = req.params;
@@ -68,13 +113,13 @@ exports.deleteTradeOrder = async (req, res) => {
   }
 };
 
-// Get Trade Orders by User ID
-// Get Trade Orders by User ID
+// Get Trade Orders by User ID with optional status filtering
 exports.getTradeOrdersByUserId = async (req, res) => {
   const { userId } = req.params;
+  const { status } = req.query; 
 
   try {
-    const tradeOrders = await tradeOrderModel.getTradeOrderByUserId(userId);
+    const tradeOrders = await tradeOrderModel.getTradeOrderByUserId(userId, status);
 
     if (tradeOrders.length > 0) {
       res.status(200).json(tradeOrders);

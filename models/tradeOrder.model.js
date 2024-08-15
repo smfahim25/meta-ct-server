@@ -21,10 +21,10 @@ async function getTradeOrderById(id) {
   }
 }
 
-// Get trade orders by User ID
-async function getTradeOrderByUserId(userId) {
+// Get trade orders by User ID with optional status filtering
+async function getTradeOrderByUserId(userId, status) {
   try {
-    const query = `
+    let query = `
       SELECT t.*, 
              u.id AS user_id, 
              u.uuid AS user_uuid,
@@ -36,23 +36,41 @@ async function getTradeOrderByUserId(userId) {
           ON t.user_id = u.id
       JOIN meta_ct_wallets AS w 
           ON t.wallet_coin_id = w.coin_id
-      WHERE t.user_id = ?  
-      ORDER BY t.created_at DESC
-      LIMIT 0, 50;
+      WHERE t.user_id = ?
     `;
 
-    const [rows] = await db.query(query, [userId]);
+    const queryParams = [userId];
+
+    // If status is provided, add it to the query
+    if (status) {
+      query += ` AND t.status = ?`;
+      queryParams.push(status);
+    }
+
+    query += ` ORDER BY t.created_at DESC LIMIT 0, 50;`;
+
+    const [rows] = await db.query(query, queryParams);
     return rows;
   } catch (error) {
     console.error('Error fetching trade orders:', error.message);
     throw new Error('Failed to retrieve trade orders');
   }
 }
+
 // Create a new trade order
 async function createTradeOrder(tradeOrderData) {
   try {
     const [result] = await db.query('INSERT INTO meta_ct_trade_order SET ?', tradeOrderData);
     return result.insertId;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+// Update the status of a trade order
+async function updateTradeOrderStatus(tradeOrderId, status) {
+  try {
+    await db.query('UPDATE meta_ct_trade_order SET status = ? WHERE id = ?', [status, tradeOrderId]);
   } catch (error) {
     throw new Error(error.message);
   }
@@ -84,5 +102,6 @@ module.exports = {
   createTradeOrder,
   updateTradeOrder,
   deleteTradeOrder,
-  getTradeOrderByUserId
+  getTradeOrderByUserId,
+  updateTradeOrderStatus
 };
