@@ -24,6 +24,19 @@ exports.getWithdrawalById = async (req, res) => {
   }
 };
 
+// Get a withdrawal by ID
+exports.getWithdrawalByUserId = async (req, res) => {
+  try {
+    const withdrawal = await Withdraw.getByUserId(req.params.userID);
+    if (!withdrawal) {
+      return res.status(404).json({ error: 'Withdrawal not found' });
+    }
+    res.json(withdrawal);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Create a new withdrawal
 exports.createWithdrawal = async (req, res) => {
   try {

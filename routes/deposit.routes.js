@@ -11,4 +11,5 @@ router.post('/', uploadMiddleware, depositController.createDeposit);
 router.put('/:id', depositController.updateDeposit);
 router.delete('/:id', depositController.deleteDeposit);
 router.get('/latest/:userId/coin/:coinId', depositController.getLatestDepositByUserIdAndCoinId);
+router.get('/user/:userId', depositController.getLatestDepositByUserId);
 module.exports = router;

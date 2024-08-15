@@ -84,3 +84,19 @@ exports.getLatestDepositByUserIdAndCoinId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Get all deposit by User ID 
+exports.getLatestDepositByUserId = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const latestDeposit = await Deposit.getLatestDepositByUserId(userId);
+    if (latestDeposit) {
+      res.status(200).json(latestDeposit);
+    } else {
+      res.status(404).json({ message: 'No deposit found for the given User ID' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

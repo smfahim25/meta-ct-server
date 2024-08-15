@@ -14,6 +14,13 @@ class Withdraw {
     return rows[0];
   }
 
+  // Get a withdrawal by userID
+  static async getByUserId(id) {
+    const [rows] = await db.query('SELECT * FROM meta_ct_withdraws WHERE user_id = ?', [id]);
+    return rows;
+  }
+
+
   // Create a new withdrawal
   static async create(withdrawData) {
     const [result] = await db.query('INSERT INTO meta_ct_withdraws SET ?', withdrawData);

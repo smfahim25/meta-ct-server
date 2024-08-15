@@ -79,6 +79,23 @@ class Deposit {
       throw new Error(error.message);
     }
   };
+
+   // get all deposit by user id 
+   static async getLatestDepositByUserId(userId){
+    const query = `
+      SELECT *
+      FROM meta_ct_deposits
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+    `;
+    
+    try {
+      const [rows] = await db.query(query, [userId]);
+      return rows;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
 }
 
 

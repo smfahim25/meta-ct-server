@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get('/', withdrawController.getAllWithdrawals);
 router.get('/:id', withdrawController.getWithdrawalById);
+router.get('/user/:userID', withdrawController.getWithdrawalByUserId);
 router.post('/', withdrawController.createWithdrawal);
 router.put('/:id', withdrawController.updateWithdrawal);
 router.delete('/:id', withdrawController.deleteWithdrawal);
