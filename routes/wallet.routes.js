@@ -4,9 +4,8 @@ const walletController = require('../controllers/wallet.controller');
 
 // Route to get all wallets
 router.get('/', walletController.getAllWallets);
-
-// Route to get a wallet by ID
 router.get('/:id', walletController.getWalletById);
+router.get('/user/:userId', walletController.getAllWalletsWithUserBalance);
 
 // Route to create a new wallet
 router.post('/', walletController.createWallet);

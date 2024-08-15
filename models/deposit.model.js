@@ -81,21 +81,22 @@ class Deposit {
   };
 
    // get all deposit by user id 
-   static async getLatestDepositByUserId(userId){
+   static async getLatestDepositByUserId(userId) {
     const query = `
-      SELECT *
-      FROM meta_ct_deposits
-      WHERE user_id = ?
-      ORDER BY created_at DESC
+      SELECT d.*, w.coin_name, w.coin_symbol
+      FROM meta_ct_deposits AS d
+      JOIN meta_ct_wallets AS w ON d.coin_id = w.coin_id
+      WHERE d.user_id = ?
+      ORDER BY d.created_at DESC
     `;
-    
+
     try {
       const [rows] = await db.query(query, [userId]);
       return rows;
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 }
 
 

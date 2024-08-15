@@ -16,8 +16,20 @@ class Withdraw {
 
   // Get a withdrawal by userID
   static async getByUserId(id) {
-    const [rows] = await db.query('SELECT * FROM meta_ct_withdraws WHERE user_id = ?', [id]);
-    return rows;
+    const query = `
+      SELECT w.*, mw.coin_name, mw.coin_symbol
+      FROM meta_ct_withdraws AS w
+      JOIN meta_ct_wallets AS mw ON w.coin_id = mw.coin_id
+      WHERE w.user_id = ?
+      ORDER BY w.created_at DESC
+    `;
+
+    try {
+      const [rows] = await db.query(query, [id]);
+      return rows;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
 

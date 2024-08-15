@@ -10,6 +10,17 @@ exports.getAllWallets = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// Get all wallets with user balance amount
+exports.getAllWalletsWithUserBalance = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const wallets = await walletModel.getAllWalletsWithUserBalance(userId);
+    res.status(200).json(wallets);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // Get a wallet by ID
 exports.getWalletById = async (req, res) => {
