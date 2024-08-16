@@ -43,22 +43,25 @@ async function updateUserBalanceMeta(id, balanceMetaData) {
 
  async function updateUserBalance(userId, coinId, amount) {
   try {
+    // Ensure the amount is treated as a number
+    const numericAmount = parseFloat(amount);
+
     const [rows] = await db.query(
       'SELECT * FROM meta_ct_user_balance_meta WHERE user_id = ? AND coin_id = ?',
       [userId, coinId]
     );
 
     if (rows.length > 0) {
-      // Update the existing balance
+      // Update the existing balance using a proper numeric operation
       await db.query(
         'UPDATE meta_ct_user_balance_meta SET coin_amount = coin_amount + ?, updated_at = NOW() WHERE user_id = ? AND coin_id = ?',
-        [amount, userId, coinId]
+        [numericAmount, userId, coinId]
       );
     } else {
-      // Insert a new balance entry if it doesn't exist
+      // Insert a new balance entry if it doesn't exist, initializing with the given amount
       await db.query(
         'INSERT INTO meta_ct_user_balance_meta (user_id, coin_id, coin_amount, usd_amount, created_at, updated_at) VALUES (?, ?, ?, 0, NOW(), NOW())',
-        [userId, coinId, amount]
+        [userId, coinId, numericAmount]
       );
     }
   } catch (error) {

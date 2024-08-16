@@ -80,7 +80,7 @@ exports.createTradeOrder = async (req, res) => {
 
         // Check if the trade was profitable
         if (tradeOrder.is_profit === 1) {
-          const netProfit =  tradeOrder.amount+tradeOrder.profit_amount;
+          const netProfit =  parseFloat(tradeOrder.amount) + parseFloat(tradeOrder.profit_amount);
           // Increase the user balance by the profit amount
           await userBalanceMetaModel.updateUserBalance(
             tradeOrder.user_id,
@@ -88,7 +88,7 @@ exports.createTradeOrder = async (req, res) => {
             netProfit
           );
         } else {
-          const netLose = tradeOrder.amount-tradeOrder.profit_amount;
+          const netLose = parseFloat(tradeOrder.amount) - parseFloat(tradeOrder.profit_amount);
           // Decrease the user balance by the profit amount (loss)
           await userBalanceMetaModel.updateUserBalance(
             tradeOrder.user_id,
