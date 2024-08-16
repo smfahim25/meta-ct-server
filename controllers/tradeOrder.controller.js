@@ -1,6 +1,7 @@
 // controllers/tradeOrder.controller.js
 const schedule = require('node-schedule');
 const tradeOrderModel = require('../models/tradeOrder.model');
+const userBalanceMetaModel = require('../models/userBalanceMeta.model');
 
 // Get all trade orders
 exports.getAllTradeOrders = async (req, res) => {
@@ -71,9 +72,32 @@ exports.createTradeOrder = async (req, res) => {
     // Schedule the status update
     schedule.scheduleJob(updateTime, async () => {
       try {
+        // Update trade order status to 'finished'
         await tradeOrderModel.updateTradeOrderStatus(newTradeOrderId, 'finished');
+
+        // Fetch the trade order details
+        const tradeOrder = await tradeOrderModel.getTradeOrderById(newTradeOrderId);
+
+        // Check if the trade was profitable
+        if (tradeOrder.is_profit === 1) {
+          const netProfit =  tradeOrder.amount+tradeOrder.profit_amount;
+          // Increase the user balance by the profit amount
+          await userBalanceMetaModel.updateUserBalance(
+            tradeOrder.user_id,
+            tradeOrder.wallet_coin_id,
+            netProfit
+          );
+        } else {
+          const netLose = tradeOrder.amount-tradeOrder.profit_amount;
+          // Decrease the user balance by the profit amount (loss)
+          await userBalanceMetaModel.updateUserBalance(
+            tradeOrder.user_id,
+            tradeOrder.wallet_coin_id,
+            netLose
+          );
+        }
       } catch (error) {
-        console.error(`Failed to update status for trade order ${newTradeOrderId}:`, error.message);
+        console.error(`Failed to update status or user balance for trade order ${newTradeOrderId}:`, error.message);
       }
     });
 
@@ -82,6 +106,7 @@ exports.createTradeOrder = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 // Update a trade order by ID
 exports.updateTradeOrder = async (req, res) => {
   const { id } = req.params;

@@ -41,6 +41,31 @@ async function updateUserBalanceMeta(id, balanceMetaData) {
   }
 }
 
+ async function updateUserBalance(userId, coinId, amount) {
+  try {
+    const [rows] = await db.query(
+      'SELECT * FROM meta_ct_user_balance_meta WHERE user_id = ? AND coin_id = ?',
+      [userId, coinId]
+    );
+
+    if (rows.length > 0) {
+      // Update the existing balance
+      await db.query(
+        'UPDATE meta_ct_user_balance_meta SET coin_amount = coin_amount + ?, updated_at = NOW() WHERE user_id = ? AND coin_id = ?',
+        [amount, userId, coinId]
+      );
+    } else {
+      // Insert a new balance entry if it doesn't exist
+      await db.query(
+        'INSERT INTO meta_ct_user_balance_meta (user_id, coin_id, coin_amount, usd_amount, created_at, updated_at) VALUES (?, ?, ?, 0, NOW(), NOW())',
+        [userId, coinId, amount]
+      );
+    }
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 // Delete a user balance meta by ID
 async function deleteUserBalanceMeta(id) {
   try {
@@ -108,6 +133,7 @@ module.exports = {
   getUserBalanceMetaById,
   createUserBalanceMeta,
   updateUserBalanceMeta,
+  updateUserBalance,
   deleteUserBalanceMeta,
   getOrCreateUserBalance,
   updateUserBalanceCoinAmount
