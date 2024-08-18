@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { db } = require('./config');
+
 const userRoutes = require('./routes/user.routes');
 const depositRoutes = require('./routes/deposit.routes');
 const withdrawRoutes = require('./routes/withdraw.routes');
@@ -18,6 +20,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api/v1/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Routes
 app.use('/api/v1/users', userRoutes);
@@ -34,6 +38,10 @@ app.use('/api/v1/wallets', walletRoutes);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
+});
+
+app.get("/",(req,res)=>{
+  res.send("Hi, Welcome to crypto trade api");
 });
 
 // Start the server

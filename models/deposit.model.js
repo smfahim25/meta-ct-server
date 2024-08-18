@@ -30,8 +30,8 @@ class Deposit {
       // Update the deposit
       const [result] = await connection.query('UPDATE meta_ct_deposits SET ? WHERE id = ?', [depositData, id]);
 
-      // If the update was successful and the status is "completed"
-      if (result.affectedRows > 0 && depositData.status === 'completed') {
+      // If the update was successful and the status is "approved"
+      if (result.affectedRows > 0 && depositData.status === 'approved') {
         // Fetch the updated deposit data to get the amount, user_id, and coin_id
         const [updatedDeposit] = await connection.query('SELECT user_id, coin_id, amount FROM meta_ct_deposits WHERE id = ?', [id]);
 

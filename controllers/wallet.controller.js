@@ -40,9 +40,19 @@ exports.getWalletById = async (req, res) => {
 // Create a new wallet
 exports.createWallet = async (req, res) => {
   const walletData = req.body;
+  const walletDataWithImg = {
+  coin_id: walletData.coin_id,
+  coin_name: walletData.coin_name,
+  coin_logo: walletData.coin_logo,
+  wallet_network: walletData.wallet_network,
+  coin_symbol: walletData.coin_symbol,
+  wallet_address: walletData.wallet_address,
+  wallet_qr: req.file ? req.file.path : null,
+    
+  };
   try {
-    const newWalletId = await walletModel.createWallet(walletData);
-    res.status(201).json({ id: newWalletId, ...walletData });
+    const newWalletId = await walletModel.createWallet(walletDataWithImg);
+    res.status(201).json({ id: newWalletId, ...walletDataWithImg });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -52,8 +62,19 @@ exports.createWallet = async (req, res) => {
 exports.updateWallet = async (req, res) => {
   const { id } = req.params;
   const walletData = req.body;
+  const walletDataWithImg = {
+    coin_id: walletData.coin_id,
+    coin_name: walletData.coin_name,
+    coin_logo: walletData.coin_logo,
+    wallet_network: walletData.wallet_network,
+    coin_symbol: walletData.coin_symbol,
+    wallet_address: walletData.wallet_address,
+    wallet_qr: req.file ? req.file.path : walletData.wallet_qr,
+    status:walletData.status,
+      
+    };
   try {
-    const affectedRows = await walletModel.updateWallet(id, walletData);
+    const affectedRows = await walletModel.updateWallet(id, walletDataWithImg);
     if (affectedRows > 0) {
       res.status(200).json({ id, ...walletData });
     } else {
