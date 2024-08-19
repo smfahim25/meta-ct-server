@@ -42,16 +42,17 @@ class Deposit {
 
       // If the update was successful and the status is "approved"
       if (result.affectedRows > 0 && depositData.status === 'approved') {
+        
         // Fetch the updated deposit data to get the amount, user_id, and coin_id
         const [updatedDeposit] = await connection.query('SELECT user_id, coin_id, amount FROM meta_ct_deposits WHERE id = ?', [id]);
 
         if (updatedDeposit.length > 0) {
           const { user_id, coin_id, amount } = updatedDeposit[0];
-
+          const updatingAmount = parseFloat(amount);
           // Update the user's balance
           await connection.query(
-            'UPDATE meta_ct_user_balance_meta SET usd_amount = usd_amount + ? WHERE user_id = ? AND coin_id = ?',
-            [amount, user_id, coin_id]
+            'UPDATE meta_ct_user_balance_meta SET coin_amount = coin_amount + ? WHERE user_id = ? AND coin_id = ?',
+            [updatingAmount, user_id, coin_id]
           );
         }
       }
