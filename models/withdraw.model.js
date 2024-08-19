@@ -4,9 +4,21 @@ const db = require('../config/db.config');
 class Withdraw {
   // Get all withdrawals
   static async getAll() {
-    const [rows] = await db.query('SELECT * FROM meta_ct_withdraws');
-    return rows;
+    try {
+      const query = `
+        SELECT d.*, u.uuid AS user_uuid, w.coin_name
+        FROM meta_ct_withdraws AS d
+        JOIN meta_ct_user AS u ON d.user_id = u.id
+        JOIN meta_ct_wallets AS w ON d.coin_id = w.coin_id
+      `;
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
+
+  
 
   // Get a withdrawal by ID
   static async getById(id) {
