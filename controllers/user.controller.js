@@ -47,11 +47,23 @@ exports.signUpUser = async (req, res) => {
       return res.status(400).json({ error: 'User already exists with this email or mobile' });
     }
 
+     // Generate a unique 6-digit UUID
+     let uuid;
+     let isUnique = false;
+ 
+     while (!isUnique) {
+       uuid = Math.floor(100000 + Math.random() * 900000).toString();
+       const userWithUuid = await User.getByUUId(uuid);
+       if (!userWithUuid) {
+         isUnique = true;
+       }
+     }
+
     // Hash the password if provided
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
     // Create the new user
-    const newUserId = await User.create({ email, mobile, password: hashedPassword, ...rest });
+    const newUserId = await User.create({uuid, email, mobile, password: hashedPassword, ...rest });
     res.status(201).json({ id: newUserId, ...req.body, password: undefined });
   } catch (error) {
     res.status(500).json({ error: error.message });
