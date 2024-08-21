@@ -2,11 +2,23 @@
 const db = require('../config').db;
 
 class User {
-  // Get all users
-  static async getAll() {
-    const [rows] = await db.query('SELECT * FROM meta_ct_user');
-    return rows;
+ // Get all users with optional role filtering
+static async getAll(role = null) {
+  let query = 'SELECT * FROM meta_ct_user';
+  let queryParams = [];
+
+  if (role) {
+    query += ' WHERE role = ?';
+    queryParams.push(role);
+  } else {
+    query += ' WHERE role IN (?, ?)';
+    queryParams.push('admin', 'superadmin');
   }
+
+  const [rows] = await db.query(query, queryParams);
+  return rows;
+}
+
 
   // Get a user by ID
   static async getById(id) {

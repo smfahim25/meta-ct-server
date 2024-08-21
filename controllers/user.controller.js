@@ -3,8 +3,10 @@ const User = require('../models/user.model');
 
 // Get all users
 exports.getAllUsers = async (req, res) => {
+  const { role } = req.query;
+
   try {
-    const users = await User.getAll();
+    const users = await User.getAll(role);
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -128,8 +130,12 @@ exports.loginUser = async (req, res) => {
 
 // Update a user by ID
 exports.updateUser = async (req, res) => {
+  
   try {
-    const affectedRows = await User.update(req.params.id, req.body);
+    const {password, ...rest } = req.body;
+    // Hash the password if provided
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
+    const affectedRows = await User.update(req.params.id, {password:hashedPassword, ...rest });
     if (affectedRows === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
