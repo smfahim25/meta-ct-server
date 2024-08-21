@@ -11,7 +11,8 @@ const tradeOrderRoutes = require('./routes/tradeOrder.routes');
 const referralRoutes = require('./routes/referralHistory.routes');
 const marketRoutes = require('./routes/marketData.routes');
 const walletRoutes = require('./routes/wallet.routes');
-
+const timerProfitRoutes = require('./routes/timerProfit.routes');
+const settingsRoutes = require('./routes/settings.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,6 +33,8 @@ app.use('/api/v1/tradeorder', tradeOrderRoutes);
 app.use('/api/v1/referral', referralRoutes);
 app.use('/api/v1/market', marketRoutes);
 app.use('/api/v1/wallets', walletRoutes);
+app.use('/api/v1/timerprofits', timerProfitRoutes);
+app.use('/api/v1/settings', settingsRoutes);
 
 
 // Error handling middleware
