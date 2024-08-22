@@ -30,23 +30,32 @@ exports.getTradeOrderById = async (req, res) => {
 
 
 function parseDeliveryTime(deliveryTime) {
-  const timeUnit = deliveryTime.slice(-1).toUpperCase(); // Get the last character (S, M, H, D)
+  const timeUnit = deliveryTime.slice(-1).toUpperCase(); // Get the last character (S, M, H, D, W, M, Y)
   const timeValue = parseInt(deliveryTime.slice(0, -1), 10); // Get the numeric part
 
   let milliseconds;
 
   switch (timeUnit) {
-    case 'S':
+    case 'S': // Seconds
       milliseconds = timeValue * 1000;
       break;
-    case 'M':
+    case 'M': // Minutes (updated for months too)
       milliseconds = timeValue * 60 * 1000;
       break;
-    case 'H':
+    case 'H': // Hours
       milliseconds = timeValue * 60 * 60 * 1000;
       break;
-    case 'D':
+    case 'D': // Days
       milliseconds = timeValue * 24 * 60 * 60 * 1000;
+      break;
+    case 'W': // Weeks
+      milliseconds = timeValue * 7 * 24 * 60 * 60 * 1000;
+      break;
+    case 'M': // Months
+      milliseconds = timeValue * 30 * 24 * 60 * 60 * 1000; // Approximation, assuming 30 days in a month
+      break;
+    case 'Y': // Years
+      milliseconds = timeValue * 365 * 24 * 60 * 60 * 1000; // Approximation, not accounting for leap years
       break;
     default:
       throw new Error('Invalid delivery time format');
@@ -54,6 +63,7 @@ function parseDeliveryTime(deliveryTime) {
 
   return milliseconds;
 }
+
 
 
 
