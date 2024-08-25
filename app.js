@@ -13,6 +13,7 @@ const marketRoutes = require('./routes/marketData.routes');
 const walletRoutes = require('./routes/wallet.routes');
 const timerProfitRoutes = require('./routes/timerProfit.routes');
 const settingsRoutes = require('./routes/settings.routes');
+const resetRoutes = require('./routes/reset.routes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +36,7 @@ app.use('/api/v1/market', marketRoutes);
 app.use('/api/v1/wallets', walletRoutes);
 app.use('/api/v1/timerprofits', timerProfitRoutes);
 app.use('/api/v1/settings', settingsRoutes);
+app.use('/api/v1/reset', resetRoutes);
 
 
 // Error handling middleware
