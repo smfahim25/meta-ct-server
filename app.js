@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { db } = require('./config');
+require('dotenv').config();
+
 
 const userRoutes = require('./routes/user.routes');
 const depositRoutes = require('./routes/deposit.routes');
@@ -53,3 +55,13 @@ app.get("/",(req,res)=>{
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
+
+(async () => {
+  try {
+    const connection = await db.getConnection();
+    console.log('Database connection successful');
+    connection.release();
+  } catch (err) {
+    console.error('Database connection failed:', err);
+  }
+})();
