@@ -6,12 +6,14 @@ class Settings {
     const [rows] = await db.query('SELECT * FROM settings WHERE id = 1');
     return rows[0];
   }
-
-  // Update settings
   static async updateSettings(settingsData) {
-    const [result] = await db.query('UPDATE settings SET ? WHERE id = 1', [settingsData]);
+    const [result] = await db.query(`
+      INSERT INTO settings SET id = 1, ?
+      ON DUPLICATE KEY UPDATE ?
+    `, [settingsData, settingsData]);
     return result.affectedRows;
   }
+  
 }
 
 module.exports = Settings;
