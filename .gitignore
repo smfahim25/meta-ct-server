@@ -129,11 +129,6 @@ temp/
 # MacOS-specific files
 .DS_Store
 
-# Logs and databases
-*.sqlite
-*.sql
-*.sqlite3
-*.db
 
 # Other development-related files
 *.sublime-project
