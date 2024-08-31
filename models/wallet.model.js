@@ -11,8 +11,7 @@ async function getAllWallets() {
   }
 }
 
-// Get all wallets with user balance amount
- async function getAllWalletsWithUserBalance(userId) {
+async function getAllWalletsWithUserBalance(userId) {
   const connection = await db.getConnection();
 
   try {
@@ -22,6 +21,8 @@ async function getAllWallets() {
     const [wallets] = await connection.query('SELECT * FROM meta_ct_wallets');
 
     const userBalances = [];
+    let grandTotalDeposits = 0;
+    let grandTotalWithdrawals = 0;
 
     for (const wallet of wallets) {
       const { coin_id } = wallet;
@@ -46,15 +47,39 @@ async function getAllWallets() {
         [userId, coin_id]
       );
 
+      // Calculate total deposits and total withdrawals for this wallet
+      const [totalDeposits] = await connection.query(
+        'SELECT SUM(amount) AS total_deposits FROM meta_ct_deposits WHERE user_id = ? AND coin_id = ?',
+        [userId, coin_id]
+      );
+
+      const [totalWithdrawals] = await connection.query(
+        'SELECT SUM(amount) AS total_withdrawals FROM meta_ct_withdrawals WHERE user_id = ? AND coin_id = ?',
+        [userId, coin_id]
+      );
+
+      const depositAmount = totalDeposits[0].total_deposits || 0;
+      const withdrawalAmount = totalWithdrawals[0].total_withdrawals || 0;
+
+      // Accumulate grand totals
+      grandTotalDeposits += parseFloat(depositAmount);
+      grandTotalWithdrawals += parseFloat(withdrawalAmount);
+
       userBalances.push({
         ...wallet,
         coin_amount: updatedBalance[0].coin_amount,
         usd_amount: updatedBalance[0].usd_amount,
+        total_deposits: depositAmount,
+        total_withdrawals: withdrawalAmount,
       });
     }
 
     await connection.commit();
-    return userBalances;
+    return {
+      userBalances,
+      grandTotalDeposits,
+      grandTotalWithdrawals,
+    };
   } catch (error) {
     await connection.rollback();
     throw error;
@@ -62,6 +87,7 @@ async function getAllWallets() {
     connection.release();
   }
 }
+
 
 // Get a wallet by ID
 async function getWalletById(id) {
