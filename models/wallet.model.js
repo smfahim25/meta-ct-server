@@ -54,7 +54,7 @@ async function getAllWalletsWithUserBalance(userId) {
       );
 
       const [totalWithdrawals] = await connection.query(
-        'SELECT SUM(amount) AS total_withdrawals FROM meta_ct_withdrawals WHERE user_id = ? AND coin_id = ?',
+        'SELECT SUM(amount) AS total_withdrawals FROM meta_ct_withdraws WHERE user_id = ? AND coin_id = ?',
         [userId, coin_id]
       );
 
