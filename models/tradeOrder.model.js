@@ -71,7 +71,7 @@ async function createTradeOrder(tradeOrderData) {
       // Decrement the trade_limit by 1 for the specific user
       await db.query(
           'UPDATE meta_ct_user SET trade_limit = trade_limit - 1 WHERE id = ?',
-          [tradeOrder.user_id]
+          [tradeOrderData.user_id]
       );
   }
   
