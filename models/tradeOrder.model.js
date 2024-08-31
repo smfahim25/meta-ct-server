@@ -67,6 +67,14 @@ async function getTradeOrderByUserId(userId, status) {
 async function createTradeOrder(tradeOrderData) {
   try {
     const [result] = await db.query('INSERT INTO meta_ct_trade_order SET ?', tradeOrderData);
+    if (result) {
+      // Decrement the trade_limit by 1 for the specific user
+      await db.query(
+          'UPDATE meta_ct_user SET trade_limit = trade_limit - 1 WHERE id = ?',
+          [tradeOrder.user_id]
+      );
+  }
+  
     return result.insertId;
   } catch (error) {
     throw new Error(error.message);
