@@ -4,5 +4,6 @@ const conversationController = require('../controllers/conversation.controller')
 
 // Get all conversations with the last message
 router.get('/user/:user_id', conversationController.getAllConversations);
+router.get('/', conversationController.getAllConversationsForAdmin);
 
 module.exports = router;

@@ -1,11 +1,12 @@
+// message.mode.js file 
 const db = require('../config/db.config');
 
 class Message {
   // Create a new message
   static async createMessage(messageData) {
     const query = `
-      INSERT INTO messages (conversation_id, sender_id, anonymous_sender_id, message_text, message_image, seen)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO messages (conversation_id, sender_id, anonymous_sender_id, message_text, message_image, seen, sender_type)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
     try {
       const [result] = await db.query(query, [
@@ -14,7 +15,8 @@ class Message {
         messageData.anonymous_sender_id,
         messageData.message_text,
         messageData.message_image,
-        messageData.seen
+        messageData.seen,
+        messageData.sender_type || 'user' // Default to 'user' if not provided
       ]);
       return { id: result.insertId, ...messageData };
     } catch (error) {

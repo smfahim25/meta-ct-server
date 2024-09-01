@@ -1,3 +1,4 @@
+// conversation.model.js 
 const conversationModel = require('../models/conversation.model');
 
 // Get all conversations with the last message
@@ -11,3 +12,13 @@ exports.getAllConversations = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// Get all conversations for admin
+exports.getAllConversationsForAdmin = async (req, res) => {
+    try {
+      const conversations = await conversationModel.getAllConversationsForAdmin();
+      res.status(200).json(conversations);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };

@@ -1,10 +1,11 @@
+// message.controller.js file 
 const Message = require('../models/message.model');
 const Conversation = require('../models/conversation.model');
 const { v4: uuidv4 } = require('uuid');
 
 // Send a new message
 exports.sendMessage = async (req, res) => {
-  const { userId, recipientId, messageText } = req.body;
+  const { userId, recipientId, messageText, senderType } = req.body; // senderType can be 'user' or 'admin'
   const messageImage = req.file ? req.file.path : null;
 
   try {
@@ -12,14 +13,14 @@ exports.sendMessage = async (req, res) => {
     let conversation_id = null;
 
     // Check if the sender is anonymous
-    if (!userId) {
+    if (!userId && senderType !== 'admin') {
       anonymousSenderId = uuidv4(); // Generate a unique anonymousSenderId
     }
 
     // Determine if a conversation already exists
-    if (userId) {
-      // Find conversation between two registered users
-      conversation_id = await Conversation.findConversationByUserIds(userId, recipientId);
+    if (senderType === 'user' || senderType === 'admin') {
+      // Find conversation between the user/admin and recipient
+      conversation_id = await Conversation.findConversationByUserIds(userId || recipientId, recipientId);
     } else {
       // Find conversation for an anonymous user
       conversation_id = await Conversation.findConversationForAnonymous(anonymousSenderId, recipientId);
@@ -27,9 +28,9 @@ exports.sendMessage = async (req, res) => {
 
     // If no conversation exists, create a new one
     if (!conversation_id) {
-      if (userId) {
-        // Create a conversation between two registered users
-        conversation_id = await Conversation.createConversation(userId, recipientId);
+      if (senderType === 'user' || senderType === 'admin') {
+        // Create a conversation between the user/admin and recipient
+        conversation_id = await Conversation.createConversation(userId || recipientId, recipientId);
       } else {
         // Create a conversation involving an anonymous user
         conversation_id = await Conversation.createConversationForAnonymous(anonymousSenderId, recipientId);
@@ -43,7 +44,8 @@ exports.sendMessage = async (req, res) => {
       anonymous_sender_id: anonymousSenderId,
       message_text: messageText,
       message_image: messageImage,
-      seen: 0
+      seen: 0,
+      sender_type: senderType || 'user' // Set sender_type based on input, default to 'user'
     });
 
     res.status(201).json(newMessage);
