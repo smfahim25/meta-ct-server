@@ -43,7 +43,9 @@ exports.getAllConversationsForAdmin = async () => {
            c.user2_id, 
            c.anonymous_user_id,
            COALESCE(u1.uuid, 'Anonymous') AS user1_uuid, 
-           COALESCE(u2.uuid, 'Anonymous') AS user2_uuid,
+            COALESCE(u1.name, 'Anonymous') AS user1_name, 
+            COALESCE(u2.uuid, 'Anonymous') AS user2_uuid,
+            COALESCE(u2.name, 'Anonymous') AS user2_name, 
            m.message_text AS last_message,
            m.created_at AS last_message_time
     FROM conversations AS c

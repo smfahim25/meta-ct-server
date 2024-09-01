@@ -7,7 +7,6 @@ const { v4: uuidv4 } = require('uuid');
 exports.sendMessage = async (req, res) => {
   const { userId, recipientId, messageText, senderType } = req.body; // senderType can be 'user' or 'admin'
   const messageImage = req.file ? req.file.path : null;
-
   try {
     let anonymousSenderId = null;
     let conversation_id = null;
@@ -19,21 +18,31 @@ exports.sendMessage = async (req, res) => {
 
     // Determine if a conversation already exists
     if (senderType === 'user' || senderType === 'admin') {
-      // Find conversation between the user/admin and recipient
-      conversation_id = await Conversation.findConversationByUserIds(userId || recipientId, recipientId);
+      if(senderType === 'user'){
+        conversation_id = await Conversation.findConversationByUserIds(userId, 0);
+      }else{
+        conversation_id = await Conversation.findConversationByUserIds(recipientId, 0);
+      }
+      
     } else {
       // Find conversation for an anonymous user
-      conversation_id = await Conversation.findConversationForAnonymous(anonymousSenderId, recipientId);
+      conversation_id = await Conversation.findConversationForAnonymous(anonymousSenderId, 0);
     }
 
     // If no conversation exists, create a new one
     if (!conversation_id) {
       if (senderType === 'user' || senderType === 'admin') {
         // Create a conversation between the user/admin and recipient
-        conversation_id = await Conversation.createConversation(userId || recipientId, recipientId);
+        if(senderType === 'user'){
+          conversation_id = await Conversation.createConversation(userId, 0);
+
+        }else{
+          conversation_id = await Conversation.createConversation(recipientId, 0);
+        }
+        
       } else {
         // Create a conversation involving an anonymous user
-        conversation_id = await Conversation.createConversationForAnonymous(anonymousSenderId, recipientId);
+        conversation_id = await Conversation.createConversationForAnonymous(anonymousSenderId, 0);
       }
     }
 
