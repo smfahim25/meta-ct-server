@@ -59,7 +59,7 @@ class Deposit {
             // Update the trade_limit in the meta_ct_user table
             await connection.query(
                 'UPDATE meta_ct_user SET trade_limit = ? WHERE id = ?',
-                [10, user_id]
+                [50, user_id]
             );
         }
       }
