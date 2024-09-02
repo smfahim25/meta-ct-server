@@ -4,12 +4,18 @@ const db = require('../config/db.config');
 class Message {
   // Create a new message
   static async createMessage(messageData) {
-    const query = `
+    const insertQuery = `
       INSERT INTO messages (conversation_id, sender_id, anonymous_sender_id, message_text, message_image, seen, sender_type)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
+  
+    const selectQuery = `
+      SELECT * FROM messages WHERE id = ?
+    `;
+  
     try {
-      const [result] = await db.query(query, [
+      // Insert the message into the database
+      const [insertResult] = await db.query(insertQuery, [
         messageData.conversation_id,
         messageData.sender_id,
         messageData.anonymous_sender_id,
@@ -18,12 +24,18 @@ class Message {
         messageData.seen,
         messageData.sender_type || 'user' // Default to 'user' if not provided
       ]);
-      return { id: result.insertId, ...messageData };
+  
+      // Retrieve the inserted message, including the created_at field
+      const [rows] = await db.query(selectQuery, [insertResult.insertId]);
+  
+      // Return the complete message object
+      return rows[0];
     } catch (error) {
       console.log(error);
       throw new Error(error.message);
     }
   }
+  
 
   // Get all messages for a conversation with seen status
   static async getMessagesByConversationId(conversation_id, user_id) {

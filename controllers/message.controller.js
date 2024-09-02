@@ -2,6 +2,7 @@
 const Message = require('../models/message.model');
 const Conversation = require('../models/conversation.model');
 const { v4: uuidv4 } = require('uuid');
+const { getReceiverSocketId, io } = require('../socket/socket');
 
 // Send a new message
 exports.sendMessage = async (req, res) => {
@@ -56,6 +57,11 @@ exports.sendMessage = async (req, res) => {
       seen: 0,
       sender_type: senderType || 'user' // Set sender_type based on input, default to 'user'
     });
+
+    const reciverSocketId = getReceiverSocketId(recipientId);
+    if(reciverSocketId){
+      io.to(reciverSocketId).emit("newMessage",newMessage);
+    }
 
     res.status(201).json(newMessage);
   } catch (error) {

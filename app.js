@@ -18,8 +18,9 @@ const settingsRoutes = require('./routes/settings.routes');
 const resetRoutes = require('./routes/reset.routes');
 const messageRoutes = require('./routes/message.routes');
 const conversationRoutes = require('./routes/conversation.routes');
+const { app, server } = require('./socket/socket');
 
-const app = express();
+
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -58,7 +59,7 @@ app.get("/",(req,res)=>{
 });
 
 // Start the server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
 
