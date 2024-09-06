@@ -58,7 +58,7 @@ exports.sendMessage = async (req, res) => {
     });
 
     // Emit the new message to the client (either admin or user depending on recipient)
-    const receiverSocketId = getReceiverSocketId(recipientId); // Define how to get receiver's socket ID
+    const receiverSocketId = getReceiverSocketId(recipientId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
     }
@@ -112,6 +112,15 @@ exports.getMessages = async (req, res) => {
 
     // Mark messages as seen
     await Message.markMessagesAsSeen(conversation_id, user_id);
+    const receiverSocketId = getReceiverSocketId(0);
+    const unreadConversationsCount = await Message.getUnreadConversationsCount();
+
+    // Emit unread message count to the receiver
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("getUnreadMessage", {
+        unreadConversationsCount,
+      });
+    }
 
     res.status(200).json(messages);
   } catch (error) {
