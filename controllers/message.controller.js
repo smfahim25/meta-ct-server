@@ -19,12 +19,13 @@ exports.sendMessage = async (req, res) => {
 
     // Determine if a conversation already exists
     if (senderType === 'user' || senderType === 'admin') {
-      if(senderType === 'user'){
+      if (senderType === 'user') {
+        // User is sending message, find conversation between user and admin (admin's id assumed to be 0)
         conversation_id = await Conversation.findConversationByUserIds(userId, 0);
-      }else{
+      } else {
+        // Admin is sending message, find conversation between recipient (user) and admin (id = 0)
         conversation_id = await Conversation.findConversationByUserIds(recipientId, 0);
       }
-      
     } else {
       // Find conversation for an anonymous user
       conversation_id = await Conversation.findConversationForAnonymous(anonymousSenderId, 0);
@@ -34,20 +35,18 @@ exports.sendMessage = async (req, res) => {
     if (!conversation_id) {
       if (senderType === 'user' || senderType === 'admin') {
         // Create a conversation between the user/admin and recipient
-        if(senderType === 'user'){
+        if (senderType === 'user') {
           conversation_id = await Conversation.createConversation(userId, 0);
-
-        }else{
+        } else {
           conversation_id = await Conversation.createConversation(recipientId, 0);
         }
-        
       } else {
         // Create a conversation involving an anonymous user
         conversation_id = await Conversation.createConversationForAnonymous(anonymousSenderId, 0);
       }
     }
 
-    // Insert the message into the database
+    // Insert the user's/admin's message into the database
     const newMessage = await Message.createMessage({
       conversation_id,
       sender_id: userId || null,
@@ -55,12 +54,47 @@ exports.sendMessage = async (req, res) => {
       message_text: messageText,
       message_image: messageImage,
       seen: 0,
-      sender_type: senderType || 'user' // Set sender_type based on input, default to 'user'
+      sender_type: senderType || 'user',
     });
 
-    const reciverSocketId = getReceiverSocketId(recipientId);
-    if(reciverSocketId){
-      io.to(reciverSocketId).emit("newMessage",newMessage);
+    // Emit the new message to the client (either admin or user depending on recipient)
+    const receiverSocketId = getReceiverSocketId(recipientId); // Define how to get receiver's socket ID
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+
+    // After saving, get unread messages for that conversation
+    const unreadCount = await Message.getUnreadMessagesCount(newMessage.conversation_id);
+    const unreadConversationsCount = await Message.getUnreadConversationsCount();
+
+    // Emit unread message count to the receiver
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("getUnreadMessage", {
+        unreadConversationsCount,
+      });
+    }
+
+    // Check if this is the first message in the conversation and send a default reply
+    const previousMessages = await Message.getMessagesByConversationId(newMessage.conversation_id);
+    if (previousMessages.length === 1 && senderType === 'user') {
+      // This is the first message from the user, send a default reply
+      const defaultReply = {
+        conversation_id: newMessage.conversation_id,
+        sender_id: 0, // Admin or system ID
+        recipient_id: newMessage.sender_id || recipientId, // Reply to the user who sent the first message
+        message_text: "Thank you for reaching out to us. Our team will respond shortly.",
+        seen: 0,
+        sender_type: 'admin',
+      };
+
+      // Save the default reply to the database
+      const defaultReplyMessage = await Message.createMessage(defaultReply);
+
+      // Emit the default reply to the user
+      const userSocketId = getReceiverSocketId(newMessage.sender_id || recipientId);
+      if (userSocketId) {
+        io.to(userSocketId).emit("newMessage", defaultReplyMessage);
+      }
     }
 
     res.status(201).json(newMessage);

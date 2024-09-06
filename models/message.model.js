@@ -87,6 +87,42 @@ class Message {
       throw new Error(error.message);
     }
   }
+
+  //get the count of unread messages by user and conversation
+static async getUnreadMessagesCount(conversation_id) {
+  const query = `
+    SELECT COUNT(*) AS unread_count
+    FROM messages
+    WHERE conversation_id = ? AND sender_type != 'admin' AND seen = 0
+  `;
+
+  try {
+    const [rows] = await db.query(query, [conversation_id]);
+    return rows[0].unread_count;
+   
+    
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
+
+// Get total unread conversations for a user
+static async getUnreadConversationsCount() {
+  const query = `
+    SELECT COUNT(DISTINCT conversation_id) AS unread_conversations
+    FROM messages
+    WHERE seen = 0 AND sender_type != 'admin'
+  `;
+
+  try {
+    const [rows] = await db.query(query);
+    return rows[0].unread_conversations;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+}
+
 
 module.exports = Message;
