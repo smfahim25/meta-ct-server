@@ -107,6 +107,13 @@ exports.createTradeOrder = async (req, res) => {
             netLose
           );
         }
+        const receiverSocketId = getReceiverSocketId(0);
+        // Emit updated withdraw to the receiver
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("updateTradeStatus", {
+            tradeOrder
+          });
+        }
       } catch (error) {
         console.error(`Failed to update status or user balance for trade order ${newTradeOrderId}:`, error.message);
       }

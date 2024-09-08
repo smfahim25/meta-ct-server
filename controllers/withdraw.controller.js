@@ -66,6 +66,15 @@ exports.updateWithdrawal = async (req, res) => {
     if (affectedRows === 0) {
       return res.status(404).json({ error: 'Withdrawal not found' });
     }
+    const withdraw = await Withdraw.getById(req.params.id);
+    const receiverSocketId = getReceiverSocketId(withdraw.user_id);
+    // Emit updated withdraw to the receiver
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("updateWithdraw", {
+        withdraw
+      });
+    }
+
     res.json({ message: 'Withdrawal updated successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
