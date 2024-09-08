@@ -18,6 +18,7 @@ const settingsRoutes = require('./routes/settings.routes');
 const resetRoutes = require('./routes/reset.routes');
 const messageRoutes = require('./routes/message.routes');
 const conversationRoutes = require('./routes/conversation.routes');
+const permissionsRoutes = require('./routes/permissions.routes');
 const { app, server } = require('./socket/socket');
 
 
@@ -41,6 +42,7 @@ app.use('/api/v1/market', marketRoutes);
 app.use('/api/v1/wallets', walletRoutes);
 app.use('/api/v1/timerprofits', timerProfitRoutes);
 app.use('/api/v1/settings', settingsRoutes);
+app.use('/api/v1/permissions', permissionsRoutes);
 app.use('/api/v1/reset', resetRoutes);
 
 app.use('/api/v1/messages', messageRoutes);
