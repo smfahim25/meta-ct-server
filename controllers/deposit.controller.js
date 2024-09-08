@@ -1,5 +1,6 @@
 // controllers/deposit.controller.js
 const Deposit = require('../models/deposit.model');
+const { getReceiverSocketId, io } = require('../socket/socket');
 // Get all deposits
 exports.getAllDeposits = async (req, res) => {
   try {
@@ -37,6 +38,16 @@ exports.createDeposit = async (req, res) => {
 
   try {
     const newDepositId = await Deposit.create(depositData);
+    if(newDepositId){
+      const receiverSocketId = getReceiverSocketId(0);
+      // Emit updated deposit to the receiver
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newDeposit", {
+          id: newDepositId, ...depositData
+        });
+      }
+  
+    }
     res.status(201).json({ id: newDepositId, ...depositData });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -47,10 +58,21 @@ exports.createDeposit = async (req, res) => {
 exports.updateDeposit = async (req, res) => {
   try {
     const affectedRows = await Deposit.update(req.params.id, req.body);
+    
     if (affectedRows === 0) {
       return res.status(404).json({ error: 'Deposit not found' });
     }
+    const deposit = await Deposit.getById(req.params.id);
+    const receiverSocketId = getReceiverSocketId(deposit.user_id);
+    // Emit updated deposit to the receiver
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("updateDeposit", {
+        deposit
+      });
+    }
+
     res.json({ message: 'Deposit updated successfully' });
+    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

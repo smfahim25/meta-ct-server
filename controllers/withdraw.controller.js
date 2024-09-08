@@ -1,5 +1,6 @@
 // controllers/withdraw.controller.js
 const Withdraw = require('../models/withdraw.model');
+const { getReceiverSocketId, io } = require('../socket/socket');
 
 // Get all withdrawals
 exports.getAllWithdrawals = async (req, res) => {
@@ -41,7 +42,18 @@ exports.getWithdrawalByUserId = async (req, res) => {
 exports.createWithdrawal = async (req, res) => {
   try {
     const newWithdrawalId = await Withdraw.create(req.body);
+    if(newWithdrawalId){
+      const receiverSocketId = getReceiverSocketId(0);
+      // Emit updated deposit to the receiver
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newWithdraw", {
+          id: newWithdrawalId, ...req.body
+        });
+      }
+  
+    }
     res.status(201).json({ id: newWithdrawalId, ...req.body });
+   
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

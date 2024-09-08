@@ -2,6 +2,7 @@
 const schedule = require('node-schedule');
 const tradeOrderModel = require('../models/tradeOrder.model');
 const userBalanceMetaModel = require('../models/userBalanceMeta.model');
+const { getReceiverSocketId, io } = require('../socket/socket');
 
 // Get all trade orders
 exports.getAllTradeOrders = async (req, res) => {
@@ -110,6 +111,17 @@ exports.createTradeOrder = async (req, res) => {
         console.error(`Failed to update status or user balance for trade order ${newTradeOrderId}:`, error.message);
       }
     });
+
+    if(newTradeOrderId){
+      const receiverSocketId = getReceiverSocketId(0);
+      // Emit updated deposit to the receiver
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newTradeOrder", {
+          id: newTradeOrderId, ...tradeOrderData
+        });
+      }
+  
+    }
 
     res.status(201).json({ id: newTradeOrderId, ...tradeOrderData });
   } catch (error) {
