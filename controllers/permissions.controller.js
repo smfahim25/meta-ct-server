@@ -54,7 +54,7 @@ exports.getUserWithPermissions = async (req, res) => {
     try {
       // Query to fetch user details and their permissions
       const userQuery = `
-        SELECT u.id as userId, u.name, u.email, p.id as permissionId, p.permission_name
+        SELECT u.id as userId, u.name, u.email, p.id as permissionId, p.label
         FROM meta_ct_user u
         LEFT JOIN user_permissions up ON u.id = up.user_id
         LEFT JOIN permissions p ON up.permission_id = p.id
@@ -74,7 +74,7 @@ exports.getUserWithPermissions = async (req, res) => {
         email: results[0].email,
         permissions: results.map((row) => ({
           permissionId: row.permissionId,
-          permissionName: row.permission_name,
+          permissionName: row.label,
         })).filter(permission => permission.permissionId !== null) // Exclude null permissions
       };
   
