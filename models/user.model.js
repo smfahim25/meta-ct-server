@@ -46,13 +46,25 @@ static async getAll(role = null) {
     );
     return rows[0];
   }
-
   // Get a user by email or mobile for login (including password)
   static async getByEmailOrMobileWithPassword(emailOrMobile) {
-    const [rows] = await db.query(
-      'SELECT * FROM meta_ct_user WHERE (email = ? OR mobile = ?)',
-      [emailOrMobile, emailOrMobile]
-    );
+    const query = `
+      SELECT 
+        u.*, 
+        GROUP_CONCAT(p.label) AS permissions
+      FROM 
+        meta_ct_user u
+      LEFT JOIN 
+        user_permissions up ON u.id = up.user_id
+      LEFT JOIN 
+        permissions p ON up.permission_id = p.id
+      WHERE 
+        u.email = ? OR u.mobile = ?
+      GROUP BY 
+        u.id;
+    `;
+
+    const [rows] = await db.query(query, [emailOrMobile, emailOrMobile]);
     return rows[0];
   }
 

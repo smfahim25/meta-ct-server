@@ -121,8 +121,12 @@ exports.loginUser = async (req, res) => {
       }
     }
 
-    // Return user data (excluding password)
-    res.json({ ...user, password: undefined });
+    // Parse permissions string into an array
+    const permissionsArray = user.permissions ? user.permissions.split(',') : [];
+
+    // Return user data (excluding password) with permissions array
+    const { password: userPassword, ...userData } = user;
+    res.json({ ...userData, permissions: permissionsArray });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
