@@ -22,6 +22,16 @@ class TimerProfit {
     const [result] = await db.query('DELETE FROM timer_profits WHERE id = ?', [id]);
     return result.affectedRows;
   }
+
+  // Update a timer profit by ID
+  static async update(id, timerProfitData) {
+    const { timer, profit, mini_usdt } = timerProfitData;
+    const [result] = await db.query(
+      'UPDATE timer_profits SET timer = ?, profit = ?, mini_usdt = ? WHERE id = ?',
+      [timer, profit, mini_usdt, id]
+    );
+    return result.affectedRows;
+  }
 }
 
 module.exports = TimerProfit;

@@ -55,3 +55,26 @@ exports.getAllConversationsForAdmin = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+
+  // Delete a conversation by ID
+exports.deleteConversation = async (req, res) => {
+  const { conversationId } = req.params;
+
+  try {
+    // Check if the conversation exists
+    const conversation = await conversationModel.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ message: 'Conversation not found' });
+    }
+
+    // Delete all messages associated with the conversation
+    await Message.deleteByConversationId(conversationId);
+
+    // Delete the conversation itself
+    await conversationModel.deleteById(conversationId);
+
+    res.status(200).json({ message: 'Conversation deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting conversation', error: error.message });
+  }
+};

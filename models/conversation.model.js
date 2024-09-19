@@ -112,3 +112,15 @@ exports.createConversation = async (user1Id, user2Id) => {
     return result.insertId;
   }
   
+
+
+  exports.deleteById= async (conversationId) => {
+    const query = `DELETE FROM conversations WHERE id = ?`;
+    return db.query(query, [conversationId]);
+  }
+
+  exports.findById = async (conversationId) => {
+    const query = `SELECT * FROM conversations WHERE id = ?`;
+    const [rows] = await db.query(query, [conversationId]);
+    return rows[0];
+  }

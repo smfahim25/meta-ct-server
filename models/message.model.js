@@ -122,6 +122,11 @@ static async getUnreadConversationsCount() {
   }
 }
 
+static async deleteByConversationId(conversationId) {
+  const query = `DELETE FROM messages WHERE conversation_id = ?`;
+  return db.query(query, [conversationId]);
+}
+
 }
 
 

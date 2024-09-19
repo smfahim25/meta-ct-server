@@ -36,3 +36,19 @@ exports.deleteTimerProfit = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+
+  // Update a timer profit by ID
+exports.updateTimerProfit = async (req, res) => {
+  const { id } = req.params;
+  const timerProfitData = req.body;
+
+  try {
+    const affectedRows = await TimerProfit.update(id, timerProfitData);
+    if (affectedRows === 0) {
+      return res.status(404).json({ message: 'Timer profit not found' });
+    }
+    res.status(200).json({ message: 'Timer profit updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

@@ -9,5 +9,7 @@ router.get('/', timerProfitController.getAllTimerProfits);
 router.post('/', timerProfitController.createTimerProfit);
 // Delete a timer profit by ID
 router.delete('/:id', timerProfitController.deleteTimerProfit);
+// update a timer profit by ID
+router.put('/:id', timerProfitController.updateTimerProfit);
 
 module.exports = router;
